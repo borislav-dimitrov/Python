@@ -1,0 +1,9 @@
+!!! terminal must be in the selected Django venv
+
+1.1 python manage.py makemigrations
+1.2 python manage.py migrate (syncing all changes)
+
+2 python manage.py startapp (appname)
+
+3. python manage.py shell (django shell)
+3.1 Product.objects.create(title='New product 2', description='another one', price='99.99', summary='sweet')

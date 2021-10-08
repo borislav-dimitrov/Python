@@ -1,0 +1,11 @@
+1. create new venv
+2. cd in ./venv/bin
+3. "source activate" in terminal
+4. python3 -m pip install django==desired_version(3.2.8 atm)
+5. mkdir src in ./venv
+5. django-admin startproject project_name_goes_here . (<= "." because we are in the desired dir already)
+6. python manage.py runserver (run the server and get the link to access it from the console "http://127.0.0.1:8000/")
+
+
+
+
