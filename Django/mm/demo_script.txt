@@ -1,177 +1,58 @@
-Hello my name is XXXXXX and im going to make a code review for this sample app....
+Hello, my name is Borislav and i am going to make a code review for this app
+Keeping in mind that i never used Django before, this is my  view point for this application
 
-####### OPEN SETTINGS.PY FILE
-So lets start with the settings.py file which is located in our Django Project folder. This is our server configuration file and we have some settings defined there.
+We are going to start with the settings.py file which is the configuration file for the Django server
 
-# BASE_DIR
-This is a variable with our project parent directory so the Django knows where are located all our files.
+The first thing we see here is that SECRET_KEY variable, which in my opinion shouldn't be here. This is sensitive information
+and i rather import this from another file/module for better security
 
-# SECRET_KEY
-This is used to provide cryptographic signingand is automatically generated for each new project. If it is not set Django will refuse to start.
-Suggestion - this should be stored in another "secret" storage for better security.
+As we go on we can see some of the frameworks that are being used.
 
-# DEBUG
-Displaying detailed error messages. Should never be true site in production.
+REST_FRAMEWORK - which have some features like authentication policies and serialization
 
-# ALLOWED_HOSTS
-A list of strings representing the host/domain names that this Django site can serve. ????
+DJOSER that is used for authenticating actions through confirmation emails
 
-# REST_FRAMEWORK
-A powerfull Django framework for building WEB APIs.
+DJOSER MAIL SECTION i think should also be in a separate file because it is again sensitive information
+This stores the configuration for the e-mail that the djoser verification mails are going to be sent from
+												############### urls.py ###############
+Lets go on with urls.py file
+This file is responsible for some of our API endpoints.
 
-filler - Some features are:
-filler -	Authentication policies
-filler - 	Serialization 
-filler - It is used in recognised companies like Mozilla and Red Hat (they make open source technologies like linux distributions and other).
+This (include car.urls) i think is a bad practice, 
+eventhough Django load the paths in the order they are defined in, if Django would load this path for some reason
+it would lead to an error because there is no real path with empty route in our car.urls
+I would either remove the entire line of code or if we actually need it, add an route to it
+												############### carAd/models.py ############### 
+The next thing im going to talk about is one of our applications "carAd"
+I'm not sure what Ad stands for and maybe this can be named better
+First im going to talk about the application models
 
-In this settings are stored the configurations for it.
+The models are basically the colum definitions of the tables in the database 
 
-# INSTALLED_APPS
-Here are described all the applications/frameworks that we are going to use in our server.
-Django comes with a set of pre-installed applications and we can also create ones by ourselves.
+This piece of code here i think can be removed because i didn't see it being used anywhere
 
-#SIMPLE_JWT
-This is part of our rest framework, stands for web token authentication and is responsible for the configuration of how our token validation will work.
-filler - like valid time that the token can be used
+Long variable name for no reason
 
-# DJOSER
-That is another framework that is authenticating our actions via confirmation emails.
-filler - 	like confirmation for creating users and password resets.
+def __str__ method i think it is a big problem because everytime Django is refering to an instance of this model it will return this static string. It should be returning the instance name like in the type class
+												############### serializers.py ############### 
+serializers are used to pack queried data and unpack it in some format ready for use like json in our views
+actually we can see some unused imports here which maybe removed
+												############### views.py ############### 
+Lets continue with the views
+The views are the actual web response from our request
 
-Also comes with some predefined endpoints.
-filler -	like "/users/ (GET's information for all the users), /users/me (GET's information for the current user we are logged as)
+I noticed that in most of the views there are not required permissions for example to delete or update methods like here
+Not sure if it is meant to be like that, but i think it shouldn't
 
-# MIDDLEWARE
-This is framework of hooks into Django's request/response processing / maybe skip this one
+Also the naming of these methods shouldn't be like that, because we my have trouble remembering which cases are upper and which are not
 
-# TEMPLATES
-Stores information like directories path for our HTML templates if we are using any (in our case we don't as far as i can see).
-filler -	Templates contain static parts of our desired HTML code as well as regions that can be dynamically changed depending on what we need for the current case.
+Another thing with the views is that many of them can be merged to avoid code repeating like some of the get clases can be merged too the retreive/update/destroy classes
+LINE 54
+Here we see the same variable assigned 3 times and never been used
 
-# Database 
-Defines the database type that we are going to use and its name.
-filler -	Django work with sqlite by default but we can use also another ones like MariaDB, MySQL, Oracle, etc...
+Urlpatterns can be merged too since the brackets in int:pk parameter means that it is not required and we can access the path
+without it
 
-# AUTH_PASSWORD VALIDATORS
-List of validaturs that may be used to check user's password strength. By default it comes with none.
-
-# STATIC_URL, MEDIA_URL
-full path to our static and media files
-filler -	static files: html, css, cs, etc | media files: pictures, videos, etc
-
-# EMAIL_
-Setting up the verification email of our DJOSER. Like i said for the secret key, i suggest for this also to be in another
-"secret" storage.
-filler - settings like: mail server that will send our e-mail , cryptographic protocols (ssl/tls), ports
-
-
-
-
-####### OPEN project/urls.py
-The next thing im going to talk about is "urls.py" again in our project folder. This is responsible for our endpoints and what to do when we go to a certain one.
-If the path is empty and there is include it will point to the urls of the included file
-With that in mind, eventhough it looks for them in the order they are written and it may not cause a problem at the moment,
-i don't think that this line (commented) is a good idea to be here without having (now showing car/urls.py) any urls
-with empty path in the included file. What will happen if it gets to this line is that it will go and search for url with empty path in
-car/urls.py and there aren't any so we will get error 404 Page Not Found.
-
-
-
-####### Django applications
-We have some applications created (car, carAd, user). When we create new application it comes with some files like
-models, views, serializers and urls which we are going to talk about next.
-
-So lets start with our user application.
-
-### user/MODELS.PY
-In models.py we are writing the colum definitions for the tables in which we are going to store our data.
-Here we see that our users will have 
-???	user - stores the information for our user ( first name , last name , email , etc )
-	picture - we can chose profile picture here, there is default one if we don't chose any
-	birthdate - birth date field which can be left blank
-
-! def __str__(self) method is used for python to visualise our username when listing our profile in the admin page for example instead the instance of the model.
-save method is used when creating new profile and it also resize the image we chose for profile picture.
-
-### user/VIEWS.PY
-So lets move on to our user views.py. The view is a web response(what is shown on the page) to our request.
-There are two types of views function-based views and class-based views. 
-
-Function-based views: 
-PROS
-	* simple to implement
-	* easy to read
-	* good for one-off or specialized functionallity
-CONS
-	* hard to extend and reuse the code
-
-Class based views:
-PROS
-	* code reusability / inherit and modify for diff use case
-	* helps to reduce the repetitiveness in our code
-	* can be extended to include more functionalities using mixins ( class that is designet to provide certain (one) functionality)
-	* have built-in generic views
-
-With that said our current viwes are as follows:
-UserRUD - used to retrieve a particular user by id for example, 
-	partially update selected user information,
-	delete selected user.
-
-ListUsers is getting the information about all of existing users.
-
-AdminListUsers is not doing anything since there is no defined metod for returning a view for it.
-
-CreateUser is used to create new user.
-
-ListProfile is used to get all existing profiles
-
-ProfileRUD get update and delete selected user. Here actually i think that permission_classes setting to allow anyone to use this is a bad idea
-maybe it should be permissions.IsAuthenticated or permissions.DjangoObjectPermissions so that you must be logged in or have the rights to edit the current object in order to use this methods.
-
-### user/SERIALIZERS.PY
-These are used to package queried data and unpackage it for us in some sort of type that is ready for use (json for example).
-They are used in the views file to prepare the data for the actual view.
-Not sure if it was on purpose but user models were imported a few times.
-
-
-	
-####### CAR APP
-
-Lets move on with our car app.
-
-### models.py
-
-In the models file we can see the expected data type and that we will have multiple tables (Brand , Model, Rating and Comment).
-If i have to answer these questions, yes i think that the brand and the models should be separate brands(toyota, bmw, etc) model (yaris, e46, etc).
-
-I HAVE QUESTIONS IN THE FILE COMMENTS !!!
-
-Maybe rating stay in comments and dont create different model for it.
-
-### views.py
-   === check how url's with pk required work and decide if post method should be in other class ===
-
-brandList - show all brands. Unused variable models. Maybe this can be included in brandDetail view since we already have the brandSerializer.
-
-brandDetail - get, update, create, delete brands. Suggestion to separate creat in different view.
-Suggestion - Maybe require permissions for update, create, delete  methods.
-
-modelList -  get all models
-
-modelCRUD - get, update, create, delete models. Suggestion to separate creat in different view.
-Suggestion - Maybe require permissions for update, create, delete  methods.
-
-ratingList - get, create ratings.
-
-ratingRUD - get, update, delete specific rating.
-
-commentList - ....
-...
-
-
-
-
-### serializers.py
-
-
+############### closing speech ############### 
+eventhough there are more things to talk about i have to stop here because im going past the given time and the structure for the other applications is the same anyway so thats it
 
